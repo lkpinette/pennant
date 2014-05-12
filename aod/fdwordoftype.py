@@ -1,5 +1,4 @@
-import nltk
-import utils
+import nltk, utils
 
 enstop = nltk.corpus.stopwords.words('english')
 
@@ -18,7 +17,17 @@ def fdWordOfType(postags, doprint=False):
             if an[0] > 11:
                 print '%s : %s' %(an[1], an[0])
 
+    return an2pls
+
 bocl_tagged = nltk.corpus.TaggedCorpusReader('tagged', '.*\.txt')
 bocl_tw = bocl_tagged.tagged_words()
 
-fdWordOfType(['NN', 'NNS'], True)
+wlist = fdWordOfType(['NN', 'NNS'])
+
+def writeWL(wl, dest):
+    rawwl = open(dest, 'w')
+    for w in wl:
+        if w[0]>11:
+            rawwl.write(w[1] + ' : ' + str(w[0]) + '\n')
+        
+writeWL(wlist, 'wordlists/rawwl.txt')

@@ -1,9 +1,8 @@
 from __future__ import division
-import nltk, urllib2, re, time, random, os
+import nltk, os, urllib2, re, time, random, utils
 from nltk.probability import *
+from nltk.tokenize import TreebankWordTokenizer as ttokenize
 from nltk.tag import pos_tag
-from nltk.corpus import stopwords
-import utils
 
 def checkLink(link, k):
     ''' checkLink is called by getBestOfLinks for each link
@@ -110,18 +109,18 @@ def tagCorpus(old, new):
         Tagging this much data takes a long time, so I did that to make
         future access and code tweaks quicker.
     '''
-    oldcorpus = utils.createCorpus(old)
-    oldids = oldcorpus.fileids()
+    fileids = os.listdir(old)
+    for fid in fileids:
+        oldfile = open(old + '/' + fid, 'r')
+        newfile = open(new + '/' + fid, 'w')
+        raw = oldfile.read()
+        sents = nltk.tokenize.sent_tokenize(raw)
+        for s in sents:
+            words = ttokenize().tokenize(s)
+            twords = pos_tag(words)
+            for tw in twords:
+                newfile.write(tw[0] + '/' + tw[1] + ' ')
+            newfile.write('\n')
+            newfile.close
 
-    for oldid in oldids:
-        newfile = open(new + '/' + oldid, 'w')
-        sents = oldcorpus.sents(oldid)
-        for sent in sents:
-            sentstr = ''
-            tsent = pos_tag(sent)
-            for tpl in tsent:
-                sentstr = sentstr + tpl[0] + '/' + tpl[1] + ' '
-            newfile.write(sentstr + '\n')
-        newfile.close()
-
-#tagCorpus('boc', 'tagged')
+tagCorpus('boc', 'tagged')
