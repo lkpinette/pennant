@@ -48,29 +48,28 @@ for word in twords:
 
 ndict = {'concrete':concrete, 'general':general, 'abstract':abstract}
 
-
 def printProbs():
     ''' Get and print the probability of a given adjective occurring with
         each class of noun
         Currently uses global variables, will later change it to be self-
     '''
-    for gkey in gdict:
-        for s in bocl.sents():
+    ants = []
+    for ts in bocl_tagged.tagged_sents():
+        s = [tw[0] for tw in ts]
+        for gkey in gdict:
             if gkey in s:
                 for w in s:
-                    if w in concrete:
-                        gdict[gkey]['concrete'] += 1
-                    elif w in general:
-                        gdict[gkey]['general'] += 1
-                    elif w in abstract:
-                        gdict[gkey]['abstract'] += 1
-    ##    print gdict[gkey]['concrete']
-    ##    print gdict[gkey]['general']
-    ##    print gdict[gkey]['abstract']
-        gtotal = gdict[gkey]['concrete'] + gdict[gkey]['general'] + gdict[gkey]['abstract']
-        print gkey + ' : ' + str(gtotal)
-        for ckey in gdict[gkey]:
-            print '%s : %s'%(ckey, gdict[gkey][ckey]/gtotal *100)
+                    for nt in ndict:
+                        if w in nt:
+                            ants.append((gkey, nt))
+
+    antcfd = ConditionalFreqDist(ants)
+    antcfd.tabulate()
+    antcpd = ConditionalProbDist(antcfd, MLEProbDist)
+    for gkey in gdict:
+        print gkey, ':'
+        for nt in ndict:
+            print '%s : %s'%(nt, antcpd[gkey].prob(nt) *100)
         print '\n'
         
 printProbs()
